@@ -1,0 +1,22 @@
+name: Hoyolab daily rewards
+on:
+  schedule:
+    - cron: "0 18 * * *"  # scheduled at 06:00 (UTC+8) everyday
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '>=12.14.1'
+    - name: Install dependencies
+      run: npm ci
+    - name: Install actions core
+      run: npm i @actions/core 
+    - name: EXP Check in to the community and claim reward on Hoyolab site
+      run: node index.js
+      env:
+        HOYOLAB_COOKIES: ${{ secrets.HOYOLAB_COOKIES }}
