@@ -10,7 +10,7 @@ async function start(cookies) {
     //* Start browser
     console.log("Trying to launch a browser");
     try {
-        browser = await puppeteer.launch({ headless: false });
+        browser = await puppeteer.launch({ headless: true });
         page = (await browser.pages())[0];
     } catch (error) {
         console.log(error);
