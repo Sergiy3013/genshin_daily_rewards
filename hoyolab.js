@@ -38,8 +38,7 @@ async function start(cookies) {
         } catch (error) {
             console.log(error);
             core.setFailed('Failed to set cookies!');
-            await closeBrowser();
-            return false
+            continue;
         }
 
         console.log("Trying to open the HoYoLAB site");
@@ -48,8 +47,7 @@ async function start(cookies) {
         } catch (error) {
             console.log(error);
             core.setFailed('The site could not be opened, please try again later');
-            await closeBrowser();
-            return false
+            continue;
         }
 
         console.log("Trying to find a daily rewards tool");
@@ -76,8 +74,7 @@ async function start(cookies) {
         } catch (error) {
             console.log(error);
             core.warning(" The required page element was not found");
-            await closeBrowser();
-            return false
+            continue;
         }
         
         
@@ -85,7 +82,7 @@ async function start(cookies) {
         await page.waitForTimeout(1000)
         checkInPage = (await browser.pages())[1];
 
-        await checkInPage.waitForSelector(selectors.checkIn.loadAll);
+        await checkInPage.waitForSelector(selectors.checkIn.rewards);
         console.log("Trying to close the banner");
         var baner = false
         for (let a = 0; a < 3; a++) {
@@ -103,16 +100,6 @@ async function start(cookies) {
             resolve(x);
         });`));
         
-
-        console.log("Opening the full list of rewards");
-        try {
-            await checkInPage.click(selectors.checkIn.loadAll);
-        } catch (error) {
-            console.log(error);
-            core.warning(" The required page element was not found");
-            await closeBrowser();
-            return false
-        }
 
         await page.waitForTimeout(2000)
         console.log("Trying to find the reward item");
@@ -147,13 +134,7 @@ async function start(cookies) {
         }
 
         console.log("Closing the checkIn page");
-        try {
-            await page.waitForTimeout(3000)
-            await checkInPage.close();
-        } catch (error) {
-            console.log(error);
-            core.warning("Failed to close page.");
-        }
+        await checkInPage.close();
     };
     console.log("\nAll tasks completed.");
     await closeBrowser();
