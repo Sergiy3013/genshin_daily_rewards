@@ -21,6 +21,7 @@
 
   0. I'm using Chrome browser, if you're using a different browser, some names may vary.
   1. Open the [**get_cookies.js**](/get_cookies.js) file and copy its contents.
+
     ```
     var cookie = start();
     var ask = confirm('Cookie: ' + cookie + '\n\nClick confirm to copy Cookie.'); if (ask == true) { copy(cookie); msg = cookie } else { msg = 'Cancel' }
@@ -33,6 +34,7 @@
         }
     }
     ```
+
 2. Go to https://www.hoyolab.com/genshin/ then login.
 3. Right-click on the page and click on **View Code**, then click on the **Console** tab.
 4. Paste the code you copied in the second paragraph and press **Enter**.
