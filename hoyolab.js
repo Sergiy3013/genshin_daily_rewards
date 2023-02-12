@@ -10,7 +10,7 @@ async function start(cookies) {
     //* Start browser
     console.log("Trying to launch a browser");
     try {
-        browser = await puppeteer.launch({ headless: true });
+        browser = await puppeteer.launch({ headless: false });
         page = (await browser.pages())[0];
     } catch (error) {
         console.log(error);
@@ -40,48 +40,48 @@ async function start(cookies) {
             core.setFailed('Failed to set cookies!');
             continue;
         }
-
-        console.log("Trying to open the HoYoLAB site");
-        try {
-            await page.goto(url)
-        } catch (error) {
-            console.log(error);
-            core.setFailed('The site could not be opened, please try again later');
-            continue;
+        if (i == 0) {
+            console.log("Trying to open the HoYoLAB site");
+            try {
+                await page.goto(url)
+            } catch (error) {
+                console.log(error);
+                core.setFailed('The site could not be opened, please try again later');
+                continue;
+            }
+    
+            console.log("Trying to find a daily rewards tool");
+            try {
+                // waiting for the list of tools
+                await page.waitForSelector(selectors.hoyolab.tools)
+                // opening the rewards page
+                await page.evaluate(new Function(`return new Promise(resolve => {
+                    var tools = document.querySelectorAll('${selectors.hoyolab.tools}');
+                    tools.forEach(toolList => {
+                        var allToolsInList = toolList.querySelectorAll('${selectors.hoyolab.toolName}');
+                        allToolsInList.forEach(tool => {
+                            if (tool.innerText.trim() == '${selectors.hoyolab.targetToolName}') {
+                                var btn = tool.closest(".tools-item")
+                                console.log(btn);
+                                var icon = btn.querySelector(".tool-logo")
+                                console.log(icon);
+                                icon.click()
+                                resolve(icon)
+                            }
+                        });
+                    });                
+                });`));
+            } catch (error) {
+                console.log(error);
+                core.warning(" The required page element was not found");
+                continue;
+            }
+            //* Receiving rewards
+            await page.waitForTimeout(1000)
+            checkInPage = (await browser.pages())[1];
         }
 
-        console.log("Trying to find a daily rewards tool");
-        try {
-            // waiting for the list of tools
-            await page.waitForSelector(selectors.hoyolab.tools)
-            // opening the rewards page
-            await page.evaluate(new Function(`return new Promise(resolve => {
-                var tools = document.querySelectorAll('${selectors.hoyolab.tools}');
-                tools.forEach(toolList => {
-                    var allToolsInList = toolList.querySelectorAll('${selectors.hoyolab.toolName}');
-                    allToolsInList.forEach(tool => {
-                        if (tool.innerText.trim() == '${selectors.hoyolab.targetToolName}') {
-                            var btn = tool.closest(".tools-item")
-                            console.log(btn);
-                            var icon = btn.querySelector(".tool-logo")
-                            console.log(icon);
-                            icon.click()
-                            resolve(icon)
-                        }
-                    });
-                });                
-            });`));
-        } catch (error) {
-            console.log(error);
-            core.warning(" The required page element was not found");
-            continue;
-        }
-        
-        
-        //* Receiving rewards
-        await page.waitForTimeout(1000)
-        checkInPage = (await browser.pages())[1];
-
+        await checkInPage.reload();
         await checkInPage.waitForSelector(selectors.checkIn.rewards);
         console.log("Trying to close the banner");
         var baner = false
@@ -133,8 +133,10 @@ async function start(cookies) {
             console.log(error);
         }
 
-        console.log("Closing the checkIn page");
-        await checkInPage.close();
+        if (i == cookies.length) {
+            console.log("Closing the checkIn page");
+            await checkInPage.close();
+        }
     };
     console.log("\nAll tasks completed.");
     await closeBrowser();
