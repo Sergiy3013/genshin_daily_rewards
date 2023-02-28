@@ -107,16 +107,16 @@ async function start(cookies) {
             // click on the element
             await checkInPage.evaluate(new Function(`return new Promise(resolve => {
                 var rewards = document.querySelectorAll('${selectors.checkIn.rewards}');
-                for (let a = 0; a < rewards.length; a++) {
+                for (let a = rewards.length-1; a > 0; a--) {
                     var reward = rewards[a];
-                    if (reward.classList.length == 1) {
-                        reward = rewards[a-1];
+                    if (reward.classList.length == 2) {
                         console.log(reward);
                         reward.click();
                         resolve(true);
                         break;
                     }
                 }
+                resolve(false);
             });`));
 
             await checkInPage.waitForTimeout(1500);
