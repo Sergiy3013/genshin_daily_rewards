@@ -107,7 +107,7 @@ async function start(cookies) {
             // click on the element
             await checkInPage.evaluate(new Function(`return new Promise(resolve => {
                 var rewards = document.querySelectorAll('${selectors.checkIn.rewards}');
-                for (let a = rewards.length-1; a > 0; a--) {
+                for (let a = rewards.length-1; a >= 0; a--) {
                     var reward = rewards[a];
                     if (reward.classList.length == 2) {
                         console.log(reward);
